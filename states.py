@@ -14,10 +14,10 @@ class InitialState(AppState):
                      sensitivity = 10,
                      clippingVal = None,
                      noisetype = DPNoisetype.GAUSS)
-        data = [1,2,3,]
+        data = [1,2,3]
         print("sending data: {}".format(data))
         self.send_data_to_coordinator(data,
-                                      send_to_self = False,
+                                      send_to_self = True,
                                       use_smpc = False,
                                       use_dp = True)
         return 'getValue'
@@ -36,12 +36,23 @@ class getValue(AppState):
                 aggNoisedData))
             print("noising data again")
             self.send_data_to_participant(aggNoisedData,
-                                          destination = self.id)
+                                          destination = self.id,
+                                          use_dp = True)
             noisedx2Data = self.await_data(n = 1,
                                            unwrap = True,
                                            is_json = True)
             print("got the following 2x noised data: {}".format(noisedx2Data))
+            print("broadcasting data")
+            self.broadcast_data(noisedx2Data,
+                                send_to_self = True,
+                                use_dp = True)
+            time.sleep(15)
             return "terminal"
         else:
+            noisedx3Data = self.await_data(n = 1,
+                                           unwrap = True,
+                                           is_json = False)
+            print("got the following 3x noised data from broadcast: {}".format(
+                noisedx3Data))
             while True:
-                time.sleep(3)
+                time.sleep(5)
